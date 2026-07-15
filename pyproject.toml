@@ -16,6 +16,7 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Security",
     "Framework :: AsyncIO",
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 license = {text = "MIT License"}
