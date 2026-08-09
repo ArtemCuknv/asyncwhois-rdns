@@ -115,9 +115,29 @@ tor_port = 9050
 
 # WHOIS
 query_string, parsed_dict = asyncwhois.whois(
-    "8.8.8.8", proxy_url=f"socks5://{tor_host}:{tor_port}"
+    "8.8.8.8",
+    proxy_url=f"socks5://{tor_host}:{tor_port}",
+    rdns=True,  # True: resolve WHOIS server names through the proxy; False: resolve locally
 )
 
+# The same options are available on reusable WHOIS clients:
+client = asyncwhois.DomainClient(
+    proxy_url=f"socks5://{tor_host}:{tor_port}",
+    rdns=False,
+)
+```
+
+Use `examples/proxy-rdns.py` for a real proxy. A self-contained integration check
+that does not require Internet access or an existing proxy is also included:
+
+```shell
+$ python examples/proxy-rdns-check.py
+rdns=True  -> proxy received DOMAIN localhost:43
+rdns=False -> proxy received IPv4 127.0.0.1:43
+PASS: remote and local DNS modes both work as expected
+```
+
+```python
 # RDAP
 import httpx
 from httpx_socks import SyncProxyTransport, AsyncProxyTransport  # EXTERNAL DEPENDENCY for SOCKS Proxies 

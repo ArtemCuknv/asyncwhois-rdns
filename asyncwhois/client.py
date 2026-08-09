@@ -55,17 +55,20 @@ class DomainClient(Client):
         whodap_client: whodap.DNSClient = None,
         timeout: int = 10,
         tldextract_obj: TLDExtract = None,
+        rdns: Optional[bool] = None,
     ):
         super().__init__(whodap_client)
         self.authoritative_only = authoritative_only
         self.ignore_not_found = ignore_not_found
         self.proxy_url = proxy_url
+        self.rdns = rdns
         self.timeout = timeout
         self.tldextract_obj = tldextract_obj
         self.query_obj = DomainQuery(
             proxy_url=proxy_url,
             timeout=timeout,
             find_authoritative_server=find_authoritative_server,
+            rdns=rdns,
         )
         self.parse_obj = DomainParser(ignore_not_found=ignore_not_found)
 
@@ -129,13 +132,17 @@ class NumberClient(Client):
         proxy_url: Optional[str] = None,
         whodap_client: Union[whodap.IPv4Client, whodap.IPv6Client] = None,
         timeout: int = 10,
+        rdns: Optional[bool] = None,
     ):
         super().__init__(whodap_client)
         self.authoritative_only = authoritative_only
         self.proxy_url = proxy_url
+        self.rdns = rdns
         self.timeout = timeout
         self.whodap_client = whodap_client
-        self.query_obj = NumberQuery(proxy_url=proxy_url, timeout=timeout)
+        self.query_obj = NumberQuery(
+            proxy_url=proxy_url, timeout=timeout, rdns=rdns
+        )
         self.parse_obj = NumberParser()
 
     def rdap(

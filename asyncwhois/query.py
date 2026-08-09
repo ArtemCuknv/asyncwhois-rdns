@@ -24,10 +24,12 @@ class Query:
         proxy_url: Optional[str] = None,
         timeout: int = 10,
         find_authoritative_server: bool = True,
+        rdns: Optional[bool] = None,
     ):
         self.proxy_url = proxy_url
         self.timeout = timeout
         self.find_authoritative_server = find_authoritative_server
+        self.rdns = rdns
 
     @staticmethod
     def _find_match(regex: str, blob: str) -> str:
@@ -39,13 +41,15 @@ class Query:
 
     @contextmanager
     def _create_connection(
-        self, address: Tuple[str, int], proxy_url: Optional[str] = None
+        self,
+        address: Tuple[str, int],
+        proxy_url: Optional[str] = None,
     ) -> Generator[socket.socket, None, None]:
         s = None
         try:
             # Use proxy if specified
             if proxy_url:
-                proxy = Proxy.from_url(proxy_url)
+                proxy = Proxy.from_url(proxy_url, rdns=self.rdns)
                 # proxy is a standard python socket in blocking mode
                 s = proxy.connect(*address, timeout=self.timeout)
             else:
@@ -58,13 +62,15 @@ class Query:
 
     @asynccontextmanager
     async def _aio_create_connection(
-        self, address: Tuple[str, int], proxy_url: Optional[str] = None
+        self,
+        address: Tuple[str, int],
+        proxy_url: Optional[str] = None,
     ) -> Generator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None, None]:
         # init
         reader, writer = None, None
         # Use proxy if specified
         if proxy_url:
-            proxy = AsyncProxy.from_url(proxy_url)
+            proxy = AsyncProxy.from_url(proxy_url, rdns=self.rdns)
             # sock is a standard python socket in blocking mode
             sock = await proxy.connect(*address, timeout=self.timeout)
             # pass it to asyncio
@@ -207,8 +213,14 @@ class DomainQuery(Query):
         proxy_url: Optional[str] = None,
         timeout: int = 10,
         find_authoritative_server: bool = True,
+        rdns: Optional[bool] = None,
     ):
-        super().__init__(proxy_url, timeout, find_authoritative_server)
+        super().__init__(
+            proxy_url=proxy_url,
+            timeout=timeout,
+            find_authoritative_server=find_authoritative_server,
+            rdns=rdns,
+        )
         self.server = server
 
     @staticmethod
@@ -240,8 +252,9 @@ class NumberQuery(Query):
         server: Optional[str] = None,
         proxy_url: Optional[str] = None,
         timeout: int = 10,
+        rdns: Optional[bool] = None,
     ):
-        super().__init__(proxy_url, timeout)
+        super().__init__(proxy_url=proxy_url, timeout=timeout, rdns=rdns)
         self.server = server
         self.whois_server_regex = r"ReferralServer: *whois://(.+)"
 

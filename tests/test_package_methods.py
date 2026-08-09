@@ -51,3 +51,17 @@ def test_whois(mock_whois_domain):
         f"domain name: {test_domain_name}" in q.lower()
     ), f"domain name: {test_domain_name} not in {q.lower()}"
     assert p.get("domain_name").lower() == test_domain_name
+
+
+def test_whois_passes_rdns_to_domain_client(mocker):
+    domain_client = mocker.patch("asyncwhois.DomainClient")
+    domain_client.return_value.whois.return_value = mock_response
+
+    asyncwhois.whois(
+        test_domain_name,
+        proxy_url="socks5://proxy.example:1080",
+        rdns=False,
+    )
+
+    assert domain_client.call_args.kwargs["proxy_url"] == "socks5://proxy.example:1080"
+    assert domain_client.call_args.kwargs["rdns"] is False

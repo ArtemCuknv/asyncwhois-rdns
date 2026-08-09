@@ -53,6 +53,7 @@ def whois(
     proxy_url: Optional[str] = None,
     timeout: int = 10,
     tldextract_obj: TLDExtract = None,
+    rdns: Optional[bool] = None,
 ) -> tuple[str, dict]:
     """
     Performs a WHOIS query for the given `search_term`. If `search_term` is or can be cast to an
@@ -68,6 +69,8 @@ def whois(
     :param ignore_not_found:  If False (default), the `NotFoundError` exception is raised if the query output
         contains "no such domain" language. If True, asyncwhois will not raise `NotFoundError` exceptions.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url (e.g. 'socks5://host:port')
+    :param rdns: Controls where proxy destination names are resolved. True uses remote DNS through the proxy,
+        False resolves locally, and None (default) uses the python-socks default. Ignored when proxy_url is None.
     :param timeout: Connection timeout. Default is 10 seconds.
     :param tldextract_obj: An optional preconfigured instance of `tldextract.TLDExtract` (used for parsing URLs)
     :returns: a tuple containing the WHOIS query text and a dictionary of key values parsed from the text
@@ -77,6 +80,7 @@ def whois(
             authoritative_only=authoritative_only,
             proxy_url=proxy_url,
             timeout=timeout,
+            rdns=rdns,
         ).whois(search_term)
     elif isinstance(search_term, str):
         try:
@@ -85,6 +89,7 @@ def whois(
                 authoritative_only=authoritative_only,
                 proxy_url=proxy_url,
                 timeout=timeout,
+                rdns=rdns,
             ).whois(search_term)
         except (ipaddress.AddressValueError, ValueError):
             return DomainClient(
@@ -94,6 +99,7 @@ def whois(
                 proxy_url=proxy_url,
                 timeout=timeout,
                 tldextract_obj=tldextract_obj,
+                rdns=rdns,
             ).whois(search_term)
     else:
         return "", {}
@@ -151,6 +157,7 @@ async def aio_whois(
     proxy_url: Optional[str] = None,
     timeout: int = 10,
     tldextract_obj: TLDExtract = None,
+    rdns: Optional[bool] = None,
 ) -> tuple[str, dict]:
     """
     Performs a WHOIS query for the given `search_term`. If `search_term` is or can be cast to an
@@ -166,6 +173,8 @@ async def aio_whois(
     :param ignore_not_found:  If False (default), the `NotFoundError` exception is raised if the query output
         contains "no such domain" language. If True, asyncwhois will not raise `NotFoundError` exceptions.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url (e.g. 'socks5://host:port')
+    :param rdns: Controls where proxy destination names are resolved. True uses remote DNS through the proxy,
+        False resolves locally, and None (default) uses the python-socks default. Ignored when proxy_url is None.
     :param timeout: Connection timeout. Default is 10 seconds.
     :param tldextract_obj: An optional preconfigured instance of `tldextract.TLDExtract` (used for parsing URLs)
     :returns: a tuple containing the WHOIS query text and a dictionary of key values parsed from the text
@@ -175,6 +184,7 @@ async def aio_whois(
             authoritative_only=authoritative_only,
             proxy_url=proxy_url,
             timeout=timeout,
+            rdns=rdns,
         ).aio_whois(search_term)
     elif isinstance(search_term, str):
         try:
@@ -183,6 +193,7 @@ async def aio_whois(
                 authoritative_only=authoritative_only,
                 proxy_url=proxy_url,
                 timeout=timeout,
+                rdns=rdns,
             ).aio_whois(search_term)
         except (ipaddress.AddressValueError, ValueError):
             return await DomainClient(
@@ -192,6 +203,7 @@ async def aio_whois(
                 timeout=timeout,
                 tldextract_obj=tldextract_obj,
                 find_authoritative_server=find_authoritative_server,
+                rdns=rdns,
             ).aio_whois(search_term)
     else:
         return "", {}
@@ -270,6 +282,7 @@ def whois_domain(
     proxy_url: Optional[str] = None,
     timeout: int = 10,
     tldextract_obj: TLDExtract = None,
+    rdns: Optional[bool] = None,
 ) -> DomainLookup:
     """
     Performs domain lookups with WHOIS.
@@ -281,6 +294,7 @@ def whois_domain(
     :param ignore_not_found:  If False (default), the `NotFoundError` exception is raised if the `query_output`
         contains "no such domain" language. If True, asyncwhois will not raise `NotFoundError` exceptions.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url (e.g. 'socks5://host:port')
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :param tldextract_obj: An optional preconfigured instance of `tldextract.tldextract.TLDExtract`
     :return: instance of DomainLookup
@@ -296,6 +310,7 @@ def whois_domain(
         proxy_url=proxy_url,
         timeout=timeout,
         tldextract_obj=tldextract_obj,
+        rdns=rdns,
     ).whois(domain)
     return DomainLookup(query_output, parser_output)
 
@@ -307,6 +322,7 @@ async def aio_whois_domain(
     proxy_url: Optional[str] = None,
     timeout: int = 10,
     tldextract_obj: TLDExtract = None,
+    rdns: Optional[bool] = None,
 ) -> DomainLookup:
     """
     Performs asynchronous domain lookups with WHOIS.
@@ -318,6 +334,7 @@ async def aio_whois_domain(
     :param ignore_not_found:  If False (default), the `NotFoundError` exception is raised if the `query_output`
         contains "no such domain" language. If True, asyncwhois will not raise `NotFoundError` exceptions.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url (e.g. 'socks5://host:port')
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :param tldextract_obj: An optional preconfigured instance of `tldextract.tldextract.TLDExtract`
     :return: instance of DomainLookup
@@ -333,6 +350,7 @@ async def aio_whois_domain(
         proxy_url=proxy_url,
         timeout=timeout,
         tldextract_obj=tldextract_obj,
+        rdns=rdns,
     ).aio_whois(domain)
     return DomainLookup(query_output, parser_output)
 
@@ -400,6 +418,7 @@ def whois_ipv4(
     authoritative_only: bool = False,
     proxy_url: Optional[str] = None,
     timeout: int = 10,
+    rdns: Optional[bool] = None,
 ) -> NumberLookup:
     """
     Performs a WHOIS query for the given IPv4 address.
@@ -409,6 +428,7 @@ def whois_ipv4(
     :param authoritative_only: If False, returns the entire WHOIS query chain
         in `query_output`; If True only the authoritative response is included.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :return: instance of DomainLookup
     """
@@ -421,6 +441,7 @@ def whois_ipv4(
         authoritative_only=authoritative_only,
         proxy_url=proxy_url,
         timeout=timeout,
+        rdns=rdns,
     ).whois(ipv4)
     return NumberLookup(query_output, parser_output)
 
@@ -430,6 +451,7 @@ async def aio_whois_ipv4(
     authoritative_only: bool = False,
     proxy_url: Optional[str] = None,
     timeout: int = 10,
+    rdns: Optional[bool] = None,
 ) -> NumberLookup:
     """
     Performs an async WHOIS query for the given IPv4 address.
@@ -439,6 +461,7 @@ async def aio_whois_ipv4(
     :param authoritative_only: If False, returns the entire WHOIS query chain
         in `query_output`; If True only the authoritative response is included.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :return: instance of NumberLookup
     """
@@ -451,6 +474,7 @@ async def aio_whois_ipv4(
         authoritative_only=authoritative_only,
         proxy_url=proxy_url,
         timeout=timeout,
+        rdns=rdns,
     ).aio_whois(ipv4)
     return NumberLookup(query_output, parser_output)
 
@@ -508,6 +532,7 @@ def whois_ipv6(
     authoritative_only: bool = False,
     proxy_url: Optional[str] = None,
     timeout: int = 10,
+    rdns: Optional[bool] = None,
 ) -> NumberLookup:
     """
     Performs a WHOIS query for the given IPv6 address.
@@ -517,6 +542,7 @@ def whois_ipv6(
     :param authoritative_only: If False, returns the entire WHOIS query chain
         in `query_output`; If True only the authoritative response is included.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :return: instance of NumberLookup
     """
@@ -529,6 +555,7 @@ def whois_ipv6(
         authoritative_only=authoritative_only,
         proxy_url=proxy_url,
         timeout=timeout,
+        rdns=rdns,
     ).whois(ipv6)
     return NumberLookup(query_output, parser_output)
 
@@ -538,6 +565,7 @@ async def aio_whois_ipv6(
     authoritative_only: bool = False,
     proxy_url: Optional[str] = None,
     timeout: int = 10,
+    rdns: Optional[bool] = None,
 ) -> NumberLookup:
     """
     Performs an async WHOIS query for the given IPv6 address.
@@ -547,6 +575,7 @@ async def aio_whois_ipv6(
     :param authoritative_only: If False, returns the entire WHOIS query chain
         in `query_output`; If True only the authoritative response is included.
     :param proxy_url: Optional SOCKS4 or SOCKS5 proxy url
+    :param rdns: True resolves destination names through the proxy; False resolves them locally.
     :param timeout: Connection timeout. Default is 10 seconds.
     :return: instance of NumberLookup
     """
@@ -559,6 +588,7 @@ async def aio_whois_ipv6(
         authoritative_only=authoritative_only,
         proxy_url=proxy_url,
         timeout=timeout,
+        rdns=rdns,
     ).aio_whois(ipv6)
     return NumberLookup(query_output, parser_output)
 
